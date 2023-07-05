@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:submission_flutter_pemula/detail_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -57,72 +57,85 @@ class _HomePageState extends State<HomePage> {
             ? const Center(
                 child: CircularProgressIndicator(),
               )
-            : GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: _items.length,
-                itemBuilder: (context, index) {
-                  final item = _items[index];
-                  return GestureDetector(
-                    onTap: () => navigateToDetailPage(index),
-                    child: Hero(
-                      tag: 'item_$index',
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.white,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Image.network(
-                                'https://storage.googleapis.com/mixmate/${item['gambar']}',
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.network(
-                                    'https://source.unsplash.com/random',
+            : LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final crossAxisCount =
+                      _calculateCrossAxisCount(constraints.maxWidth);
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: _items.length,
+                    itemBuilder: (context, index) {
+                      final item = _items[index];
+                      return GestureDetector(
+                        onTap: () => navigateToDetailPage(index),
+                        child: Hero(
+                          tag: 'item_$index',
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Image.network(
+                                    'https://storage.googleapis.com/mixmate/${item['gambar']}',
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     height: double.infinity,
-                                  );
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item['rekomendasi'],
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.network(
+                                        'https://source.unsplash.com/random',
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                      );
+                                    },
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Price: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp').format(int.parse(item['price']))}',
-                                    style: TextStyle(fontSize: 14),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['rekomendasi'],
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Price: ${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp').format(int.parse(item['price']))}',
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               ),
       ),
     );
+  }
+
+  int _calculateCrossAxisCount(double containerWidth) {
+    const itemWidth = 200.0;
+    final crossAxisCount = containerWidth ~/ itemWidth;
+    return crossAxisCount;
   }
 }
